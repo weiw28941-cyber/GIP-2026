@@ -46,10 +46,39 @@ def point_guided_deformation(image, source_pts, target_pts, alpha=1.0, eps=1e-8)
     ------
         A deformed image.
     """
+    height, width, channels = image.shape
+    grid_x, grid_y = np.meshgrid(np.arange(width), np.arange(height))
+    v = np.stack([grid_x, grid_y], axis=-1).reshape(-1, 2)  # 所有像素点 (M, 2)
 
-    warped_image = np.array(image)
-    ### FILL: Implement MLS or RBF based image warping
+    # 1. 计算权重 w_i = 1 / |q_i - v|^(2*alpha) 
+    dist = np.linalg.norm(v[:, np.newaxis, :] - target_pts[np.newaxis, :, :], axis=2)
+    w = 1.0 / (dist**(2 * alpha) + eps)  # (M, N)
+    w_sum = np.sum(w, axis=1, keepdims=True)
+    w /= w_sum  # 归一化权重
 
+    # 2. 计算加权质心 p* 和 q* 
+    q_star = np.einsum('mn,nx->mx', w, target_pts) # 目标点质心
+    p_star = np.einsum('mn,nx->mx', w, source_pts) # 原点质心
+
+    # 3. 计算去中心化的坐标 q_hat 和 p_hat 
+    q_hat = target_pts[np.newaxis, :, :] - q_star[:, np.newaxis, :] 
+    p_hat = source_pts[np.newaxis, :, :] - p_star[:, np.newaxis, :] 
+    v_rel = v - q_star
+    # 4. 实现 Rigid 变形核心公式
+    comp1 = np.einsum('mnd,md->mn', q_hat, v_rel)
+    q_hat_perp = np.stack([-q_hat[..., 1], q_hat[..., 0]], axis=-1)
+    comp2 = np.einsum('mnd,md->mn', q_hat_perp, v_rel)
+    # fr_v_x = sum_n( w_n * (px_n * comp1_n - py_n * comp2_n) )
+    fr_v_x = np.sum(w * (p_hat[..., 0] * comp1 - p_hat[..., 1] * comp2), axis=1)
+    fr_v_y = np.sum(w * (p_hat[..., 0] * comp2 + p_hat[..., 1] * comp1), axis=1)
+    fr_v = np.stack([fr_v_x, fr_v_y], axis=-1)
+    # 归一化并恢复比例，得到原图映射坐标 
+    fr_v_norm = np.linalg.norm(fr_v, axis=1, keepdims=True) + eps
+    v_rel_norm = np.linalg.norm(v_rel, axis=1, keepdims=True)
+    source_coords = v_rel_norm * (fr_v / fr_v_norm) + p_star
+    map_x = source_coords[:, 0].reshape(height, width).astype(np.float32)
+    map_y = source_coords[:, 1].reshape(height, width).astype(np.float32)
+    warped_image = cv2.remap(image, map_x, map_y, interpolation=cv2.INTER_LINEAR)
     return warped_image
 
 def run_warping():
@@ -84,4 +113,4 @@ with gr.Blocks() as demo:
     run_button.click(run_warping, None, result_image)
     clear_button.click(clear_points, None, point_select)
 
-demo.launch()
+demo.launch(share=True)
