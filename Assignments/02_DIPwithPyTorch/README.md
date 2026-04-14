@@ -42,7 +42,7 @@ python train.py
 | **Initial** | 30 | ~0.37 | ~0.41 | Basic color blocks identified; edges are extremely blurry. |
 | **Mid-term** | 130 | ~0.28 | ~0.40 | Structures are accurate; severe over-smoothing present. |
 | **Final** | 300 | **~0.24** | **~0.40** | Stable color tones; missing high-frequency textures. |
-
+<img src="train_results/epoch_295/result_1.png" alt="alt text" width="800">
 ### Visual Results
 As observed in the `./train_results` folder, the model successfully learns the spatial mapping (e.g., placing windows and doors correctly). However, the output images exhibit an "out-of-focus" effect, which is a characteristic limitation of the FCN + L1 Loss combination.
 ## 5. Pre-Trained Models
