@@ -33,6 +33,7 @@ Execute the following command in your terminal to start training:
 ```bash
 # Ensure you are in the project root directory
 python train.py
+
 ## 4. Results and Metrics
 
 ### Training Logs Summary
