@@ -33,7 +33,7 @@ Execute the following command in your terminal to start training:
 ```bash
 # Ensure you are in the project root directory
 python train.py
-
+```
 ## 4. Results and Metrics
 
 ### Training Logs Summary
@@ -45,8 +45,9 @@ python train.py
 
 ### Visual Results
 As observed in the `./train_results` folder, the model successfully learns the spatial mapping (e.g., placing windows and doors correctly). However, the output images exhibit an "out-of-focus" effect, which is a characteristic limitation of the FCN + L1 Loss combination.
-
-## 5. Critical Analysis
+## 5. Pre-Trained Models
+   
+## 6. Critical Analysis
 
 Regarding the phenomenon where **"Loss is low, but visual quality is blurry"**:
 
@@ -54,7 +55,7 @@ Regarding the phenomenon where **"Loss is low, but visual quality is blurry"**:
 2.  **Structural Bottleneck**: The FCN architecture lacks **Skip Connections**. Low-level spatial details (like sharp lines and textures) are lost during the downsampling process and cannot be recovered during upsampling, leading to a loss of high-frequency information.
 3.  **Generalization Gap**: While the Training Loss decreases after the learning rate decay (Epoch 200+), the Validation Loss plateaus around 0.40. This indicates the model has reached its representational capacity for unseen data.
 
-## 6. Future Improvements
+## 7. Future Improvements
 * **U-Net Architecture**: Implement skip connections to preserve low-level feature maps.
 * **Generative Adversarial Networks (GANs)**: Introduce a Discriminator and a GAN loss (Adversarial Loss) to force the Generator to produce sharper, more realistic textures.
 
