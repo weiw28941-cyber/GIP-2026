@@ -1,0 +1,11 @@
+{
+  "views": 50,
+  "points": 20000,
+  "visible_observations": 805089,
+  "device": "cuda",
+  "iterations": 1200,
+  "focal": 882.7700805664062,
+  "mean_reprojection_error_px": 0.7237638235092163,
+  "median_reprojection_error_px": 0.5963907241821289,
+  "p90_reprojection_error_px": 1.386837363243103
+}
